@@ -11,8 +11,15 @@ const server = new WebSocket.Server({
 console.log('Server on');
 
 server.on('connection', function connection(socket){
-   console.log('server: User connected');
    socket.on('message', function incoming(message) {
-      console.log('User: ', message);
+       let mess = JSON.parse(message);
+       switch (mess.method) {
+           case "register":
+               console.log(`server: User ${mess.params.name} connected`);
+               break;
+           case "all":
+               console.log(mess.resource + ': ' + mess.params.message);
+               break;
+       }
    });
 });
