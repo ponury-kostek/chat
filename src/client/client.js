@@ -17,14 +17,18 @@ socket.on('open', function open(){
     rl.question('What is your name? \n', (answer) => {
         userName = answer;
         request.setResource(userName).setMethod('register').setParams({'name' : answer});
+
+        readline.moveCursor(process.stdout, 0, -1);
+        readline.clearLine(process.stdout, 0);
         socket.send(request.toString());
-        rl.clearLine(process.stdin, 0); // nie działa
         console.log('You are connected as ' + userName);
     });
 
     rl.on('line', (writeMessage) => {
-        console.log(`You: ${writeMessage}`);
         request.setResource(userName).setMethod('all').setParams({'message' : writeMessage});
+        readline.moveCursor(process.stdout, 0, -1);
+        readline.clearLine(process.stdout, 0);
+        console.log(`You: ${writeMessage}`);
         socket.send(request.toString());
     });
 })
