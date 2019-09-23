@@ -7,16 +7,19 @@ const jr = new JR;
 const server = new WebSocket.Server({
     port: 8080
 });
-
-const chanels  = ['all'];
+var user = [{name:"", socket:[]}];
+var channels  = [{name:"all", users:[]}];
 console.log('Server on');
 
 server.on('connection', function connection(socket){
-   socket.on('message', function incoming(message) {
+    socket.on('message', function incoming(message) {
        let mess = JSON.parse(message);
        switch (mess.method) {
            case "register":
-               chanels.push = mess.params.name;
+               user.push({name:mess.params.name, socket: socket});
+               channels.push({name:'all', users:[user]});
+
+               console.log(channels);
                console.log(`server: User ${mess.params.name} connected`);
                break;
            case "all":
