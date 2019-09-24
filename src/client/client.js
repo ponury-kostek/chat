@@ -57,7 +57,9 @@ socket.on('open', function open(){
     });
 
     socket.on('message', function incoming (message) {
-        const mess = JSON.parse(message);
+        console.log('przed');
+        let mess = jr.parse(message);
+        console.log('po');
         console.log(mess);
     })
 })
