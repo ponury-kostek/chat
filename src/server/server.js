@@ -3,29 +3,43 @@ const WebSocket = require('ws');
 const JR = require('@etk/jsonrpc');
 
 const jr = new JR;
-
+// const request = new jr.Request();
+const response = new jr.Response();
 const server = new WebSocket.Server({
     port: 8080
 });
-var user = [{name:"", socket:[]}];
-var channels  = [{name:"all", users:[]}];
+const users = [{name: "", socket: []}];
+const channels = [{name: "all", users: []}];
 console.log('Server on');
 
-server.on('connection', function connection(socket){
+server.on('connection', function connection(socket) {
     socket.on('message', function incoming(message) {
-       let mess = JSON.parse(message);
-       switch (mess.method) {
-           case "register":
-               user.push({name:mess.params.name, socket: socket});
-               channels.push({name:'all', users:[user]});
+        let mess = jr.parse(message);
+        console.log(mess.getParams().name);
+        switch (mess.getMethod()) {
+            case "register":
+                const user = {name: mess.getParams().name, socket: socket};
+                users.push(user);
+                const result = channels.find((value) => value.name === 'all');
+                if (result) {
+                    result.users.push(user);
+                }
+                console.log(`server: User ${mess.getParams().name} connected`);
+                break;
+            case "all":
+                socket.send(message);
+                console.log(mess.resource + ': ' + mess.getParams().message);
+                break;
+            case "check_channel":
+                console.log('wchodze');
+                const name = mess.getParams().name;
+                const findUser = users.find((value) => value.name === name);
+                response.setId(mess.id); //this must be integer
+                response.setResult({check_channel: !!findUser, name: name});
 
-               console.log(channels);
-               console.log(`server: User ${mess.params.name} connected`);
-               break;
-           case "all":
-               socket.send(message);
-               console.log(mess.resource + ': ' + mess.params.message);
-               break;
-       }
-   });
+                socket.send(response.toString());
+                console.log('dochodze');
+                break;
+        }
+    });
 });
